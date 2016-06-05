@@ -3,7 +3,9 @@
 
 class Matrix {
 	public:
-		Matrix(int rows, int columns, int start_value=0);
+		Matrix() = delete;
+		Matrix(std::pair<int, int> dimensions, int start_value=0);
+		virtual ~Matrix();
 
 		int rows() const noexcept;
 		int columns() const noexcept;
@@ -12,6 +14,7 @@ class Matrix {
 		void set_value(std::pair<int, int> cell, int value);
 
 		int sum() const noexcept;
+		Matrix operator*(const Matrix&rhs);
 	private:
 		void verify_cell_validity(int row, int column) const;
 
