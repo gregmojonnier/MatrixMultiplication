@@ -2,10 +2,12 @@
 #include <gmock/gmock.h>
 #include <iostream>
 #include <stdexcept>
+#include <chrono>
 #include "../src/Matrix.h"
  
 using namespace std;
 using ::testing::Eq;
+using ::testing::Lt;
 
 TEST(Matrix, MustBeInitializedWithRowAndColumnSize) { 
 	Matrix m({3,4});
@@ -93,7 +95,7 @@ TEST(AMatrix, ThrowsInvalidArgumentWhenAskedToMultiplyMatricesWithMismatchedInne
 	ASSERT_THROW(m1 * m2, invalid_argument);
 }
 
-TEST(AMatrix, MutipliesCorrectlyASimpleExample) {
+TEST(AMatrix, MutipliesSmallMatricesCorrectly) {
 	Matrix m1({2,1}, 2);
 	Matrix m2({1,2}, 2);
 
@@ -105,7 +107,7 @@ TEST(AMatrix, MutipliesCorrectlyASimpleExample) {
 								   // [4 4]
 }
 
-TEST(AMatrix, MutipliesCorrectlyAMoreComplexExample) {
+TEST(AMatrix, MutipliesMediumMatricesCorrectly) {
 	Matrix m1({2,2}, 2);
 	Matrix m2({2,2}, 2);
 
@@ -115,4 +117,30 @@ TEST(AMatrix, MutipliesCorrectlyAMoreComplexExample) {
 								   // Expected
 	ASSERT_THAT(m3.sum(), Eq(32)); // [8 8]
 								   // [8 8]
+}
+
+TEST(AMatrix, MutipliesLargeMatricesCorrectly) {
+	int rows=100, columns=100, cellValue=10;
+	int eachCellValue = ((cellValue*cellValue) * rows), totalCells = (rows * columns);
+	Matrix m1({rows,columns}, cellValue);
+	Matrix m2({rows,columns}, cellValue);
+
+	Matrix m3 = m1 * m2;
+
+	int expectedSum = eachCellValue * totalCells;
+	ASSERT_THAT(m3.sum(), Eq(expectedSum));
+}
+
+TEST(DISABLED_AMatrix, MutipliesMassiveMatricesInATimelyManner) {
+	// (600x600) with value of 11, takes roughly 8200 ms, UNACCEPTABLE!
+	int rows=600, columns=600, cellValue=11;
+	Matrix m1({rows,columns}, cellValue);
+	Matrix m2({rows,columns}, cellValue);
+
+	auto start = chrono::steady_clock::now();
+	Matrix m3 = m1 * m2;
+	auto end = chrono::steady_clock::now();
+	double duration = chrono::duration<double, milli>(end - start).count();
+
+	ASSERT_THAT(duration, Lt(4100));
 }
