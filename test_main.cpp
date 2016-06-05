@@ -33,8 +33,8 @@ class Matrix {
 		{
 			auto& row = cell.first;
 			auto& column = cell.second;
-			if (row < 0 || column < 0 || row >= rows_ || column >= columns_)
-				throw std::invalid_argument("Cell must be between 0 and rows/columns of matrix. [" + to_string(row) + "," + to_string(column) + "]" );
+			verify_cell_validity(row, column);
+
 			return matrix_[row][column];
 		}
 
@@ -42,17 +42,27 @@ class Matrix {
 		{
 			auto& row = cell.first;
 			auto& column = cell.second;
-			if (row < 0 || column < 0 || row >= rows_ || column >= columns_)
-				throw std::invalid_argument("Cell must be between 0 and rows/columns of matrix. [" + to_string(row) + "," + to_string(column) + "]" );
+			verify_cell_validity(row, column);
+
 			matrix_[row][column] = value;
 		}
 
 		int sum() const noexcept
 		{
-			return 0;
+			int sum = 0;
+			for (auto& row : matrix_)
+			{
+				sum = accumulate(row.begin(), row.end(), sum);
+			}
+			return sum;
 		}
 
 	private:
+		void verify_cell_validity(int row, int column) const
+		{
+			if (row < 0 || column < 0 || row >= rows_ || column >= columns_)
+				throw std::invalid_argument("Cell must be between 0 and rows/columns of matrix. [" + to_string(row) + "," + to_string(column) + "]" );
+		}
 		vector<vector<int>> matrix_;
 		int rows_;
 		int columns_;
@@ -91,7 +101,7 @@ TEST(Matrix_get_value, CanBeUsedToRetrieveIndividualCellValues) {
 }
 
 TEST(Matrix_get_value, ThrowsInvalidArgumentWhenGivenCellNotInMatrix) { 
-	Matrix m(1,1); // only valid coordinate is {0, 0}
+	Matrix m(1,1); // only valid cell is {0, 0}
 
 	ASSERT_THROW(m.get_value({-1, 0}), invalid_argument);
 	ASSERT_THROW(m.get_value({0, -1}), invalid_argument);
@@ -108,12 +118,23 @@ TEST(Matrix_set_value, CanBeUsedToSetIndividualCellValues) {
 }
 
 TEST(Matrix_set_value, ThrowsInvalidArgumentWhenGivenCellNotInMatrix) { 
-	Matrix m(1,1); // only valid coordinate is {0, 0}
+	Matrix m(1,1); // only valid cell is {0, 0}
 
 	ASSERT_THROW(m.set_value({-1, 0}, 2), invalid_argument);
 	ASSERT_THROW(m.set_value({0, -1}, 2), invalid_argument);
 	ASSERT_THROW(m.set_value({1, 0}, 2), invalid_argument);
 	ASSERT_THROW(m.set_value({0, 1}, 2), invalid_argument);
+}
+
+TEST(Matrix_sum, AnswersWithCorrectSumWhenAsked) { 
+	Matrix oneCellMatrix(1, 1, 2); 
+	Matrix fourCellMatrix(2, 2, 2); 
+
+	int oneCellSum = oneCellMatrix.sum();
+	int fourCellSum = fourCellMatrix.sum();
+
+	ASSERT_THAT(oneCellSum, Eq(2));
+	ASSERT_THAT(fourCellSum, Eq(8));
 }
 
 int main(int argc, char **argv) {
