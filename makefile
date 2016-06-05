@@ -2,9 +2,17 @@ CXX=g++
 CXXFLAGS=-Wall -g -std=c++14
 LINK_FLAGS=-lgtest -lgmock -pthread
 
-tests: test_main.o
-	$(CXX) -o tests test_main.o $(LINK_FLAGS)
+tests: TestMain.o MatrixTests.o Matrix.o
+	$(CXX) -o tests TestMain.o MatrixTests.o Matrix.o $(LINK_FLAGS)
 
-test_main.o: test_main.cpp
-	$(CXX) $(CXXFLAGS) -c test_main.cpp
+TestMain.o: test/TestMain.cpp MatrixTests.o
+	$(CXX) $(CXXFLAGS) -c test/TestMain.cpp
 	
+MatrixTests.o: test/MatrixTests.cpp Matrix.o
+	$(CXX) $(CXXFLAGS) -c test/MatrixTests.cpp
+
+Matrix.o: src/Matrix.h src/Matrix.cpp
+	$(CXX) $(CXXFLAGS) -c src/Matrix.cpp
+
+clean:
+	rm *.o tests
