@@ -1,10 +1,11 @@
 #include "Matrix.h"
 #include <stdexcept>
 #include <algorithm>
+#include <thread>
  
 using namespace std;
 
-Matrix::Matrix(pair<int, int> dimensions, int start_value)
+Matrix::Matrix(const pair<int, int>& dimensions, int start_value)
 {
 	auto& rows = dimensions.first;
 	auto& columns = dimensions.second;
@@ -35,7 +36,7 @@ int Matrix::columns() const noexcept
 	return columns_;
 }
 
-int Matrix::get_value(pair<int, int> cell) const
+int Matrix::get_value(const pair<int, int>& cell) const
 {
 	auto& row = cell.first;
 	auto& column = cell.second;
@@ -44,7 +45,7 @@ int Matrix::get_value(pair<int, int> cell) const
 	return matrix_[row][column];
 }
 
-void Matrix::set_value(pair<int, int> cell, int value)
+void Matrix::set_value(const pair<int, int>& cell, int value)
 {
 	auto& row = cell.first;
 	auto& column = cell.second;
@@ -70,23 +71,59 @@ Matrix Matrix::operator*(const Matrix&rhs)
 								+ ") should equal the number of rows in the 2nd matrix("
 								+ to_string(rhs.rows()) + ") in order to multiply them together.");
 
-	Matrix result({rows_, rhs.columns()});
+	int thread_count = (std::thread::hardware_concurrency() > 0) ? std::thread::hardware_concurrency() : 1;
+	int work_per_thread = rows_ / thread_count;
 
-	for (int row = 0; row < rows_; ++row)
-	{
-			for (int column = 0; column < rhs.columns(); ++column)
+	if (work_per_thread < 250) {
+		thread_count = 1;
+	}
+
+	Matrix result({rows_, rhs.columns()});
+	vector<thread> workers;
+
+	auto work = [&](int start_row, int end_row) {
+			for (int row = start_row; row < end_row; ++row)
 			{
-					int cellValue = 0;
-					for (int myColumnIdx = 0; myColumnIdx < columns_; ++myColumnIdx)
+					for (int column = 0; column < rhs.columns(); ++column)
 					{
-						int subValue = matrix_[row][myColumnIdx] * rhs.get_value({myColumnIdx, column});
-						cellValue += subValue;
+							result.set_value({row, column}, sum_products_of_matching_cells(row, column, rhs));
 					}
-					result.set_value({row, column}, cellValue);
 			}
+	};
+	
+	int start_row = 0;
+	for (int i = 0; i < thread_count; ++i)
+	{
+		if (i + 1 >= thread_count)
+		{
+			work(start_row, rows_);
+		}
+		else
+		{
+			workers.emplace_back(work, start_row, start_row+work_per_thread);
+		}
+		start_row += work_per_thread;
+	}
+
+	for (auto& worker : workers)
+	{
+		worker.join();
 	}
 
 	return result;
+}
+
+int Matrix::sum_products_of_matching_cells(int row, int column, const Matrix& rhs) const
+{
+	// Calculates a final cell value in a new matrix resulting from multiplying 2 matrices
+	//		The new cell is the sum of the products of matching indexes(multiplicandIdx)
+	//		Onus is on caller of function to verify our columns_ and rhs's rows lengths match(requirement of matrix multiplication)
+	int cellValue = 0;
+	for (int multiplicandIdx = 0; multiplicandIdx < columns_; ++multiplicandIdx)
+	{
+		cellValue += matrix_[row][multiplicandIdx] * rhs.get_value({multiplicandIdx, column});
+	}
+	return cellValue;
 }
 
 void Matrix::verify_cell_validity(int row, int column) const

@@ -120,7 +120,7 @@ TEST(AMatrix, MutipliesMediumMatricesCorrectly) {
 }
 
 TEST(AMatrix, MutipliesLargeMatricesCorrectly) {
-	int rows=100, columns=100, cellValue=10;
+	int rows=600, columns=600, cellValue=11;
 	int eachCellValue = ((cellValue*cellValue) * rows), totalCells = (rows * columns);
 	Matrix m1({rows,columns}, cellValue);
 	Matrix m2({rows,columns}, cellValue);
@@ -131,8 +131,9 @@ TEST(AMatrix, MutipliesLargeMatricesCorrectly) {
 	ASSERT_THAT(m3.sum(), Eq(expectedSum));
 }
 
-TEST(DISABLED_AMatrix, MutipliesMassiveMatricesInATimelyManner) {
-	// (600x600) with value of 11, takes roughly 8200 ms, UNACCEPTABLE!
+TEST(AMatrix, MutipliesMassiveMatricesInATimelyManner) {
+	// (600x600) with value of 11, takes roughly 8200 ms(single threaded), UNACCEPTABLE!
+	// Threaded solution dropped time down to roughly 3300 ms :D
 	int rows=600, columns=600, cellValue=11;
 	Matrix m1({rows,columns}, cellValue);
 	Matrix m2({rows,columns}, cellValue);
