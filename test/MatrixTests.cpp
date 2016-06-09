@@ -79,11 +79,14 @@ TEST(Matrix_sum, AnswersWithCorrectSumWhenAsked) {
 }
 
 TEST(Matrix_multiplication, ResultsInANewMatrix) {
-	Matrix m1({1,1}, 3); // [3]
-	Matrix m2({1,1}, 7); // [7]
+	Matrix m1({1,1}, 3);
+	Matrix m2({1,1}, 7);
 
+	// [3] * [7]
 	Matrix m3 = m1 * m2;
 
+	// Expected
+	// [21]
 	ASSERT_THAT(m3.get_value({0,0}), Eq(21));
 }
 
@@ -99,24 +102,28 @@ TEST(Matrix_multiplication, MultipliesSmallMatricesCorrectly) {
 	Matrix m1({2,1}, 2);
 	Matrix m2({1,2}, 2);
 
-	Matrix m3 = m1 * m2; // [2]  *  [2 2]
-						 // [2]
+	// [2]  *  [2 2]
+	// [2]
+	Matrix m3 = m1 * m2;
 
-								   // Expected
-	ASSERT_THAT(m3.sum(), Eq(16)); // [4 4]
-								   // [4 4]
+	// Expected
+	// [4 4]
+	// [4 4]
+	ASSERT_THAT(m3.sum(), Eq(16));
 }
 
 TEST(Matrix_multiplication, MultipliesMediumMatricesCorrectly) {
 	Matrix m1({2,2}, 2);
 	Matrix m2({2,2}, 2);
 
-	Matrix m3 = m1 * m2; // [2 2]  *  [2 2]
-						 // [2 2]     [2 2]
+	// [2 2]  *  [2 2]
+	// [2 2]     [2 2]
+	Matrix m3 = m1 * m2;
 
-								   // Expected
-	ASSERT_THAT(m3.sum(), Eq(32)); // [8 8]
-								   // [8 8]
+	// Expected
+	// [8 8]
+	// [8 8]
+	ASSERT_THAT(m3.sum(), Eq(32));
 }
 
 TEST(Matrix_multiplication, MultipliesLargeMatricesCorrectly) {
