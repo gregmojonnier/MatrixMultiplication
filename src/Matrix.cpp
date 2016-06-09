@@ -71,21 +71,31 @@ Matrix Matrix::operator*(const Matrix&rhs)
 								+ ") should equal the number of rows in the 2nd matrix("
 								+ to_string(rhs.rows()) + ") in order to multiply them together.");
 
+	Matrix result({rows_, rhs.columns()});
+
+	calc_product_of_self_and_rhs(rhs, result);
+
+	return result;
+}
+
+void Matrix::calc_product_of_self_and_rhs(const Matrix& rhs, Matrix& result) const
+{
 	int thread_count = (std::thread::hardware_concurrency() > 0) ? std::thread::hardware_concurrency() : 1;
 	int work_per_thread = rows_ / thread_count;
 
+	// no sense in using multiple threads when there's not enough work
 	if (work_per_thread < 250) {
 		thread_count = 1;
 	}
 
-	Matrix result({rows_, rhs.columns()});
 	vector<thread> workers;
-
+	// work is divided between threads by result rows
 	auto work = [&](int start_row, int end_row) {
 			for (int row = start_row; row < end_row; ++row)
 			{
 					for (int column = 0; column < rhs.columns(); ++column)
 					{
+							// result vector sizes are set beforehand, threads have no overlap in writing
 							result.set_value({row, column}, sum_products_of_matching_cells(row, column, rhs));
 					}
 			}
@@ -109,8 +119,6 @@ Matrix Matrix::operator*(const Matrix&rhs)
 	{
 		worker.join();
 	}
-
-	return result;
 }
 
 int Matrix::sum_products_of_matching_cells(int row, int column, const Matrix& rhs) const
