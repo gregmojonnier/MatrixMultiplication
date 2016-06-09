@@ -131,3 +131,26 @@ void Matrix::verify_cell_validity(int row, int column) const
 	if (row < 0 || column < 0 || row >= rows_ || column >= columns_)
 		throw invalid_argument("Cell must be between 0 and rows/columns of matrix. [" + to_string(row) + "," + to_string(column) + "]" );
 }
+
+std::ostream& operator<<(std::ostream& os, const Matrix& matrix)
+{
+	size_t rows = matrix.matrix_.size();
+	for (size_t rowIdx = 0; rowIdx < rows; ++rowIdx)
+	{
+		auto& row = matrix.matrix_[rowIdx];
+		size_t columns = row.size();
+		for (size_t valueIdx = 0; valueIdx < columns; ++valueIdx)
+		{
+			os << row[valueIdx];
+			if (valueIdx + 1 < columns)
+			{
+					os << " ";
+			}
+			else if (rowIdx + 1 < rows)
+			{
+					os << endl;
+			}
+		}
+	}
+    return os;
+}

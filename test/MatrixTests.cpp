@@ -78,7 +78,7 @@ TEST(Matrix_sum, AnswersWithCorrectSumWhenAsked) {
 	ASSERT_THAT(fourCellSum, Eq(8));
 }
 
-TEST(AMatrix, MutipliedByAnotherResultsInANewOne) {
+TEST(Matrix_multiplication, ResultsInANewMatrix) {
 	Matrix m1({1,1}, 3); // [3]
 	Matrix m2({1,1}, 7); // [7]
 
@@ -87,7 +87,7 @@ TEST(AMatrix, MutipliedByAnotherResultsInANewOne) {
 	ASSERT_THAT(m3.get_value({0,0}), Eq(21));
 }
 
-TEST(AMatrix, ThrowsInvalidArgumentWhenAskedToMultiplyMatricesWithMismatchedInnerDimensions) {
+TEST(Matrix_multiplication, ThrowsInvalidArgumentWhenAskedToMultiplyMatricesWithMismatchedInnerDimensions) {
 	// to be able to multiply 2 matrices, matrix 1's column count must match matrix 2's row count
 	Matrix m1({1,4}, 3);
 	Matrix m2({2,1}, 7);
@@ -95,19 +95,19 @@ TEST(AMatrix, ThrowsInvalidArgumentWhenAskedToMultiplyMatricesWithMismatchedInne
 	ASSERT_THROW(m1 * m2, invalid_argument);
 }
 
-TEST(AMatrix, MutipliesSmallMatricesCorrectly) {
+TEST(Matrix_multiplication, MultipliesSmallMatricesCorrectly) {
 	Matrix m1({2,1}, 2);
 	Matrix m2({1,2}, 2);
 
 	Matrix m3 = m1 * m2; // [2]  *  [2 2]
-						 // [2]     
+						 // [2]
 
 								   // Expected
 	ASSERT_THAT(m3.sum(), Eq(16)); // [4 4]
 								   // [4 4]
 }
 
-TEST(AMatrix, MutipliesMediumMatricesCorrectly) {
+TEST(Matrix_multiplication, MultipliesMediumMatricesCorrectly) {
 	Matrix m1({2,2}, 2);
 	Matrix m2({2,2}, 2);
 
@@ -119,7 +119,7 @@ TEST(AMatrix, MutipliesMediumMatricesCorrectly) {
 								   // [8 8]
 }
 
-TEST(AMatrix, MutipliesLargeMatricesCorrectly) {
+TEST(Matrix_multiplication, MultipliesLargeMatricesCorrectly) {
 	int rows=600, columns=600, cellValue=11;
 	int eachCellValue = ((cellValue*cellValue) * rows), totalCells = (rows * columns);
 	Matrix m1({rows,columns}, cellValue);
@@ -131,8 +131,8 @@ TEST(AMatrix, MutipliesLargeMatricesCorrectly) {
 	ASSERT_THAT(m3.sum(), Eq(expectedSum));
 }
 
-TEST(AMatrix, MutipliesMassiveMatricesInATimelyManner) {
-	// (600x600) with value of 11, takes roughly 8200 ms(single threaded), UNACCEPTABLE!
+TEST(Matrix_multiplication, MultipliesMassiveMatricesInATimelyManner) {
+	// Originally, (600x600) with value of 11, took roughly 8200 ms(single threaded), UNACCEPTABLE!
 	// Threaded solution dropped time down to roughly 3300 ms :D
 	int rows=600, columns=600, cellValue=11;
 	Matrix m1({rows,columns}, cellValue);

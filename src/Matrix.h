@@ -1,4 +1,5 @@
 #include <utility>
+#include <iostream>
 #include <vector>
 
 class Matrix {
@@ -15,6 +16,8 @@ class Matrix {
 
 		int sum() const noexcept;
 		Matrix operator*(const Matrix& rhs);
+	
+		friend std::ostream& operator<<(std::ostream& os, const Matrix& matrix);
 	private:
 		void verify_cell_validity(int row, int column) const;
 		int sum_products_of_matching_cells(int row, int column, const Matrix& rhs) const;
